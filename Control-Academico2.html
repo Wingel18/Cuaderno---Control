@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuaderno de control</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root{
+    --paper: #F6F3EC;
+    --paper-line: #E4DFD2;
+    --ink: #23281F;
+    --ink-soft: #5B5A4E;
+    --pine: #2C6B57;
+    --pine-dark: #1F4E40;
+    --rust: #B44F2B;
+    --rust-soft: #F2E1D8;
+    --olive: #6B7A4F;
+    --olive-soft: #E6EADB;
+    --margin: #B5533E;
+    --paper-card: #FCFAF5;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+
+  .sheet{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  header.top h1{
+    font-family:'Source Serif 4', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:28px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  header.top .fecha{
+    font-size:13px;
+    color:var(--ink-soft);
+    text-transform:capitalize;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:2px;
+    margin:18px 0 22px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  nav.tabs button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    padding:10px 4px;
+    margin-right:22px;
+    cursor:pointer;
+    position:relative;
+    border-radius:0;
+  }
+  nav.tabs button:focus-visible{outline:2px solid var(--pine); outline-offset:2px;}
+  nav.tabs button[aria-selected="true"]{color:var(--ink);}
+  nav.tabs button[aria-selected="true"]::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:-1px;
+    height:2px;
+    background:var(--pine);
+  }
+
+  section.panel{display:none;}
+  section.panel.active{display:block;}
+
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--paper-line);
+    border-left:3px solid var(--margin);
+    border-radius:2px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .card h2{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0 0 10px;
+  }
+  .empty{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    font-style:italic;
+    padding:6px 0;
+  }
+
+  .fila{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .fila:last-child{border-bottom:none;}
+  .fila .info{flex:1; min-width:0;}
+  .fila .titulo{font-weight:500; font-size:14px;}
+  .fila .detalle{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .badge{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    white-space:nowrap;
+  }
+  .badge.rust{background:var(--rust-soft); color:var(--rust);}
+  .badge.olive{background:var(--olive-soft); color:var(--olive);}
+  .badge.pine{background:#DCEBE5; color:var(--pine-dark);}
+
+  button.icon{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:16px;
+    padding:4px 6px;
+    line-height:1;
+  }
+  button.icon:hover{color:var(--rust);}
+  button.icon:focus-visible{outline:2px solid var(--pine); outline-offset:1px;}
+
+  input[type=checkbox]{
+    width:17px; height:17px;
+    accent-color:var(--pine);
+    flex-shrink:0;
+  }
+
+  form.add{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid var(--paper-line);
+  }
+  form.add.horario{grid-template-columns:1fr 1fr 1fr 1fr;}
+  form.add input, form.add select{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    padding:8px 9px;
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+  }
+  form.add input:focus, form.add select:focus{
+    outline:none;
+    border-color:var(--pine);
+  }
+  form.add .full{grid-column:1 / -1;}
+  form.add button{
+    grid-column:1 / -1;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    padding:9px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-top:2px;
+  }
+  form.add button:hover{background:var(--pine-dark);}
+  form.add button:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+
+  input.nota{
+    width:52px;
+    text-align:center;
+    font-size:13px;
+    padding:5px 4px;
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+  }
+
+  .done .titulo{text-decoration:line-through; color:var(--ink-soft);}
+
+  .dia-heading{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--pine-dark);
+    margin:14px 0 4px;
+  }
+  .dia-heading:first-child{margin-top:0;}
+
+  .notas-selectores{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:4px;
+  }
+  .notas-selectores select,
+  .esquema-custom input,
+  .objetivo-input{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    padding:8px 9px;
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .notas-selectores select{flex:1; min-width:160px;}
+  .esquema-custom{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+  }
+  .esquema-custom input{width:70px;}
+  .objetivo-input{width:56px; text-align:center;}
+
+  nav.subtabs{
+    display:flex;
+    gap:6px;
+    margin:16px 0 10px;
+  }
+  nav.subtabs button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    font-weight:500;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    color:var(--ink-soft);
+    padding:6px 12px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  nav.subtabs button[aria-selected="true"]{
+    background:var(--pine);
+    border-color:var(--pine);
+    color:#fff;
+  }
+  nav.subtabs button:focus-visible{outline:2px solid var(--pine); outline-offset:2px;}
+
+  .asig-total{font-size:12px; color:var(--ink-soft); margin:10px 0 4px;}
+  .asig-total.over{color:var(--rust);}
+
+  form.eval-form{
+    display:flex;
+    gap:6px;
+    margin-top:6px;
+  }
+  form.eval-form input{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    padding:6px 8px;
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+  }
+  form.eval-form .ev-concepto{flex:1; min-width:0;}
+  form.eval-form .ev-porcentaje{width:60px;}
+  form.eval-form button{
+    font-size:12.5px;
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    padding:6px 10px;
+    border-radius:3px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+
+  .necesaria-box{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:3px;
+    background:var(--paper-card);
+    border:1px solid var(--paper-line);
+    font-size:13.5px;
+  }
+  .necesaria-box.olive{background:var(--olive-soft); border-color:var(--olive);}
+  .necesaria-box.rust{background:var(--rust-soft); border-color:var(--rust);}
+  .necesaria-box strong{font-family:'Source Serif 4', serif; font-size:15px;}
+
+  @media (max-width:480px){
+    form.add.horario{grid-template-columns:1fr 1fr;}
+    header.top h1{font-size:23px;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="top">
+    <h1>Cuaderno de control</h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span class="fecha" id="fechaHoy"></span>
+      <span id="syncStatus" style="font-size:12px;color:var(--ink-soft);">⏳ conectando…</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="hoy" aria-selected="true">Hoy</button>
+    <button role="tab" data-tab="horario" aria-selected="false">Horario</button>
+    <button role="tab" data-tab="asignaturas" aria-selected="false">Asignaturas</button>
+    <button role="tab" data-tab="notas" aria-selected="false">Notas y Trimestres</button>
+    <button role="tab" data-tab="tareas" aria-selected="false">Tareas</button>
+    <button role="tab" data-tab="examenes" aria-selected="false">Exámenes</button>
+  </nav>
+
+  <section class="panel active" id="panel-hoy">
+    <div class="card aviso" id="cardAviso" style="display:none; border-left-color:var(--rust);">
+      <h2>Aviso: exámenes cercanos</h2>
+      <div id="hoyAviso"></div>
+    </div>
+    <div class="card">
+      <h2>Clases de hoy</h2>
+      <div id="hoyClases"></div>
+    </div>
+    <div class="card">
+      <h2>Tareas para hoy o atrasadas</h2>
+      <div id="hoyTareas"></div>
+    </div>
+    <div class="card">
+      <h2>Próximos exámenes</h2>
+      <div id="hoyExamenes"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-horario">
+    <div class="card">
+      <h2>Horario semanal</h2>
+      <div id="listaHorario"></div>
+      <form class="add horario" id="formHorario">
+        <select id="hDia" required>
+          <option value="Lunes">Lunes</option>
+          <option value="Martes">Martes</option>
+          <option value="Miércoles">Miércoles</option>
+          <option value="Jueves">Jueves</option>
+          <option value="Viernes">Viernes</option>
+        </select>
+        <input id="hHora" type="time" required>
+        <input id="hHoraFin" type="time">
+        <input id="hAsignatura" type="text" placeholder="Asignatura" required>
+        <input id="hAula" type="text" placeholder="Aula (opcional)">
+        <button type="submit" class="full">Añadir clase</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-asignaturas">
+    <div class="card">
+      <h2>Asignaturas y objetivos</h2>
+      <div id="listaAsignaturas"></div>
+      <form class="add" id="formAsignaturas">
+        <input id="aNombre" type="text" placeholder="Asignatura" class="full" required>
+        <input id="aObjetivo" type="number" min="0" max="10" step="0.1" placeholder="Nota objetivo (opcional)">
+        <input id="aHoras" type="number" min="0" step="1" placeholder="Horas/semana (opcional)">
+        <button type="submit" class="full">Añadir asignatura</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-notas">
+    <div class="card">
+      <h2>Notas y Trimestres</h2>
+      <div class="notas-selectores">
+        <select id="nSelectAsignatura"></select>
+        <select id="nSelectEsquema">
+          <option value="20-30-50">Progresivo 20/30/50</option>
+          <option value="33-33-34">Equitativo 33/33/34</option>
+          <option value="10-20-70">Evaluación continua 10/20/70</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+      <div class="esquema-custom" id="esquemaCustomBox" style="display:none;">
+        <input type="number" id="cP1" min="0" max="100" step="1" placeholder="% T1">
+        <input type="number" id="cP2" min="0" max="100" step="1" placeholder="% T2">
+        <input type="number" id="cP3" min="0" max="100" step="1" placeholder="% T3">
+      </div>
+      <nav class="subtabs" role="tablist">
+        <button role="tab" data-tri="1" aria-selected="true">1º Trimestre</button>
+        <button role="tab" data-tri="2" aria-selected="false">2º Trimestre</button>
+        <button role="tab" data-tri="3" aria-selected="false">3º Trimestre</button>
+      </nav>
+      <div id="triContenido"></div>
+      <div class="necesaria-box" id="necesariaBox"></div>
+    </div>
+    <div class="card">
+      <h2>Media anual estimada</h2>
+      <div id="mediaAnualPanel"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-tareas">
+    <div class="card">
+      <h2>Tareas y deberes</h2>
+      <div id="listaTareas"></div>
+      <form class="add" id="formTareas">
+        <input id="tAsignatura" type="text" placeholder="Asignatura" required>
+        <input id="tFecha" type="date" required>
+        <select id="tPrioridad">
+          <option value="Baja">Prioridad baja</option>
+          <option value="Media" selected>Prioridad media</option>
+          <option value="Alta">Prioridad alta</option>
+        </select>
+        <input id="tTitulo" type="text" placeholder="Descripción" class="full" required>
+        <button type="submit" class="full">Añadir tarea</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-examenes">
+    <div class="card">
+      <h2>Exámenes</h2>
+      <div id="listaExamenes"></div>
+      <form class="add" id="formExamenes">
+        <input id="eAsignatura" type="text" placeholder="Asignatura" required>
+        <input id="eFecha" type="date" required>
+        <input id="ePeso" type="number" min="0" max="100" step="1" placeholder="Peso % (opcional)">
+        <input id="eTema" type="text" placeholder="Tema (opcional)" class="full">
+        <button type="submit" class="full">Añadir examen</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>
+const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+const DIA_JS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+
+let data = { horario: [], tareas: [], examenes: [], asignaturas: [] };
+let loaded = false;
+let notasAsigId = null;
+let notasTri = '1';
+
+function esCalificable(s){ return !/tutor/i.test(s.nombre); }
+function esquemaPesos(s){
+  if(s.esquema === 'custom') return s.esquemaCustom || [33,33,34];
+  return (s.esquema || '20-30-50').split('-').map(Number);
+}
+function calcularTrimestre(s, tri){
+  const evs = (s.trimestres && s.trimestres[tri]) || [];
+  const pesoConfigurado = evs.reduce((a,e)=>a+e.porcentaje,0);
+  const evaluadas = evs.filter(e => e.nota !== null && e.nota !== undefined);
+  const pesoEvaluado = evaluadas.reduce((a,e)=>a+e.porcentaje,0);
+  const weightedSum = evaluadas.reduce((a,e)=>a+e.nota*e.porcentaje,0) / 100;
+  const media = pesoEvaluado > 0 ? (weightedSum * 100 / pesoEvaluado) : null;
+  return {evs, pesoConfigurado, pesoEvaluado, weightedSum, media};
+}
+function estimacionAnual(s){
+  const pesos = esquemaPesos(s);
+  let sumaPeso = 0, sumaPonderada = 0;
+  ['1','2','3'].forEach((tri, i) => {
+    const {media} = calcularTrimestre(s, tri);
+    if(media !== null){ sumaPeso += pesos[i]; sumaPonderada += media * pesos[i]; }
+  });
+  return sumaPeso > 0 ? sumaPonderada / sumaPeso : null;
+}
+
+const SEED_ASIGNATURAS = [
+  {nombre:"Euskara eta Literatura I", horas:3},
+  {nombre:"Gaztelania eta Literatura I", horas:3},
+  {nombre:"Ingelesa I", horas:3},
+  {nombre:"Historia de la Filosofía", horas:3},
+  {nombre:"Heziketa Fisikoa", horas:2},
+  {nombre:"Tutoretza", horas:1},
+  {nombre:"Matematika I", horas:4},
+  {nombre:"Fisika eta Kimika", horas:4},
+  {nombre:"Marrazketa Teknikoa I", horas:4},
+  {nombre:"Teknologia eta Ingeniaritza I", horas:4},
+  {nombre:"Aljebra eta Kalkulua", horas:3}
+];
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+// ---------- Supabase ----------
+const SUPA_URL = 'https://emuqkxaunyyjmhvqquhk.supabase.co';
+const SUPA_KEY = 'sb_publishable_q9yvhhbYINY-AQSdeFTAJw_GvRqBofh';
+const USER_ID  = 'eneko-cuaderno-2026';
+
+function syncStatus(txt, color='var(--ink-soft)'){
+  const el = document.getElementById('syncStatus');
+  if(el){ el.textContent = txt; el.style.color = color; }
+}
+
+async function supaGet(){
+  const r = await fetch(`${SUPA_URL}/rest/v1/cuaderno?user_id=eq.${USER_ID}&select=data`, {
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  });
+  if(!r.ok) throw new Error('GET '+r.status);
+  const rows = await r.json();
+  return rows.length ? rows[0].data : null;
+}
+
+async function supaSet(payload){
+  const r = await fetch(`${SUPA_URL}/rest/v1/cuaderno`, {
+    method:'POST',
+    headers:{
+      'apikey':SUPA_KEY,
+      'Authorization':'Bearer '+SUPA_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'resolution=merge-duplicates'
+    },
+    body: JSON.stringify({user_id: USER_ID, data: payload, updated_at: new Date().toISOString()})
+  });
+  if(!r.ok) throw new Error('SET '+r.status);
+}
+
+async function loadData(){
+  syncStatus('⏳ cargando…');
+  try{
+    const remote = await supaGet();
+    if(remote) data = remote;
+    syncStatus('✓ sincronizado', 'var(--olive)');
+  }catch(e){
+    syncStatus('⚠ sin conexión — datos locales', 'var(--rust)');
+    try{
+      const local = localStorage.getItem('cuaderno-backup');
+      if(local) data = JSON.parse(local);
+    }catch(_){}
+  }
+
+  if(!data.asignaturas) data.asignaturas = [];
+  data.asignaturas.forEach(a => {
+    if(!a.trimestres){
+      a.trimestres = {1:[], 2:[], 3:[]};
+      if(a.evaluaciones && a.evaluaciones.length) a.trimestres['1'] = a.evaluaciones;
+    }
+    delete a.evaluaciones;
+    if(!a.esquema) a.esquema = '20-30-50';
+    if(!a.esquemaCustom) a.esquemaCustom = [20,30,50];
+  });
+  if(!data.horario)   data.horario   = [];
+  if(!data.tareas)    data.tareas    = [];
+  if(!data.examenes)  data.examenes  = [];
+
+  if(!data.seeded){
+    const existentes = new Set(data.asignaturas.map(a => a.nombre.toLowerCase()));
+    SEED_ASIGNATURAS.forEach(s => {
+      if(!existentes.has(s.nombre.toLowerCase())){
+        data.asignaturas.push({id: uid(), nombre: s.nombre, objetivo: null, horas: s.horas, trimestres:{1:[],2:[],3:[]}, esquema:'20-30-50', esquemaCustom:[20,30,50]});
+      }
+    });
+    data.seeded = true;
+    await saveData();
+  }
+
+  if(!notasAsigId && data.asignaturas.length){
+    const primero = data.asignaturas.find(esCalificable);
+    if(primero) notasAsigId = primero.id;
+  }
+  loaded = true;
+  renderAll();
+}
+
+let saveTimer = null;
+async function saveData(){
+  // Backup local inmediato
+  try{ localStorage.setItem('cuaderno-backup', JSON.stringify(data)); }catch(_){}
+  // Debounce: espera 800ms de inactividad antes de escribir a Supabase
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    syncStatus('⏫ guardando…', 'var(--ink-soft)');
+    try{
+      await supaSet(data);
+      syncStatus('✓ guardado', 'var(--olive)');
+      setTimeout(()=>syncStatus('✓ sincronizado','var(--olive)'), 1500);
+    }catch(e){
+      syncStatus('⚠ error al guardar', 'var(--rust)');
+    }
+  }, 800);
+}
+
+function hoyISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function diasHasta(fechaISO){
+  const hoy = new Date(hoyISO()+'T00:00:00');
+  const f = new Date(fechaISO+'T00:00:00');
+  return Math.round((f-hoy)/86400000);
+}
+
+function fmtFecha(fechaISO){
+  const f = new Date(fechaISO+'T00:00:00');
+  return f.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
+}
+
+// ---------- render: cabecera ----------
+function renderCabecera(){
+  const d = new Date();
+  document.getElementById('fechaHoy').textContent =
+    d.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
+}
+
+// ---------- render: Hoy ----------
+function renderHoy(){
+  const diaHoy = DIA_JS[new Date().getDay()];
+  const clasesHoy = data.horario
+    .filter(c => c.dia === diaHoy)
+    .sort((a,b)=> a.hora.localeCompare(b.hora));
+
+  const elClases = document.getElementById('hoyClases');
+  elClases.innerHTML = clasesHoy.length ? clasesHoy.map(c => `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(c.asignatura)}</div>
+        <div class="detalle">${c.hora}${c.horaFin ? '–'+c.horaFin : ''}${c.aula ? ' · '+escapeHtml(c.aula) : ''}</div>
+      </div>
+    </div>`).join('') : `<div class="empty">No tienes clases registradas para hoy.</div>`;
+
+  const AVISO_DIAS = 3;
+  const urgentes = data.examenes
+    .filter(e => diasHasta(e.fecha) >= 0 && diasHasta(e.fecha) <= AVISO_DIAS)
+    .sort((a,b)=> a.fecha.localeCompare(b.fecha));
+  const cardAviso = document.getElementById('cardAviso');
+  if(urgentes.length){
+    cardAviso.style.display = 'block';
+    document.getElementById('hoyAviso').innerHTML = urgentes.map(e => {
+      const dias = diasHasta(e.fecha);
+      const texto = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `en ${dias} días`;
+      return `
+      <div class="fila">
+        <div class="info">
+          <div class="titulo">${escapeHtml(e.asignatura)}</div>
+          <div class="detalle">${e.tema ? escapeHtml(e.tema)+' · ' : ''}${e.peso ? 'peso '+e.peso+'% · ' : ''}${fmtFecha(e.fecha)}</div>
+        </div>
+        <span class="badge rust">${texto}</span>
+      </div>`;
+    }).join('');
+  } else {
+    cardAviso.style.display = 'none';
+  }
+
+  const tareasHoy = data.tareas
+    .filter(t => !t.hecha && t.fecha <= hoyISO())
+    .sort((a,b)=> a.fecha.localeCompare(b.fecha));
+
+  const elTareas = document.getElementById('hoyTareas');
+  elTareas.innerHTML = tareasHoy.length ? tareasHoy.map(t => {
+    const atrasada = t.fecha < hoyISO();
+    return `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(t.titulo)}</div>
+        <div class="detalle">${escapeHtml(t.asignatura)}</div>
+      </div>
+      <span class="badge ${atrasada ? 'rust' : 'pine'}">${atrasada ? 'atrasada' : 'hoy'}</span>
+    </div>`;
+  }).join('') : `<div class="empty">No hay tareas pendientes para hoy.</div>`;
+
+  const proxExamenes = data.examenes
+    .filter(e => diasHasta(e.fecha) >= 0 && diasHasta(e.fecha) <= 7)
+    .sort((a,b)=> a.fecha.localeCompare(b.fecha));
+
+  const elExamenes = document.getElementById('hoyExamenes');
+  elExamenes.innerHTML = proxExamenes.length ? proxExamenes.map(e => {
+    const dias = diasHasta(e.fecha);
+    const texto = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `en ${dias} días`;
+    return `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(e.asignatura)}</div>
+        <div class="detalle">${e.tema ? escapeHtml(e.tema)+' · ' : ''}${fmtFecha(e.fecha)}</div>
+      </div>
+      <span class="badge ${dias<=2 ? 'rust' : 'olive'}">${texto}</span>
+    </div>`;
+  }).join('') : `<div class="empty">No hay exámenes en los próximos 7 días.</div>`;
+}
+
+// ---------- render: Horario ----------
+function renderHorario(){
+  const el = document.getElementById('listaHorario');
+  if(!data.horario.length){
+    el.innerHTML = `<div class="empty">Aún no has añadido ninguna clase.</div>`;
+    return;
+  }
+  let html = '';
+  DIAS.forEach(dia => {
+    const clases = data.horario.filter(c => c.dia === dia).sort((a,b)=>a.hora.localeCompare(b.hora));
+    if(!clases.length) return;
+    html += `<div class="dia-heading">${dia}</div>`;
+    html += clases.map(c => `
+      <div class="fila">
+        <div class="info">
+          <div class="titulo">${escapeHtml(c.asignatura)}</div>
+          <div class="detalle">${c.hora}${c.horaFin ? '–'+c.horaFin : ''}${c.aula ? ' · '+escapeHtml(c.aula) : ''}</div>
+        </div>
+        <button class="icon" onclick="borrarHorario('${c.id}')" aria-label="Eliminar clase">✕</button>
+      </div>`).join('');
+  });
+  el.innerHTML = html;
+}
+
+// ---------- render: Asignaturas ----------
+function renderAsignaturas(){
+  const el = document.getElementById('listaAsignaturas');
+  if(!data.asignaturas.length){
+    el.innerHTML = `<div class="empty">Aún no has añadido ninguna asignatura.</div>`;
+    return;
+  }
+  el.innerHTML = data.asignaturas.map(s => {
+    if(!esCalificable(s)){
+      return `
+      <div class="fila">
+        <div class="info">
+          <div class="titulo">${escapeHtml(s.nombre)}</div>
+          <div class="detalle">no calificable${s.horas ? ' · '+s.horas+' h/semana' : ''}</div>
+        </div>
+        <button class="icon" onclick="borrarAsignatura('${s.id}')" aria-label="Eliminar asignatura">✕</button>
+      </div>`;
+    }
+    const media = estimacionAnual(s);
+    let badge = `<span class="badge pine">sin evaluar</span>`;
+    if(media !== null){
+      const clase = s.objetivo ? (media >= s.objetivo ? 'olive' : 'rust') : 'pine';
+      badge = `<span class="badge ${clase}">media ${media.toFixed(1)}</span>`;
+    }
+    return `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(s.nombre)}</div>
+        <div class="detalle">${s.horas ? s.horas+' h/semana' : ''}</div>
+      </div>
+      <span class="detalle">objetivo</span>
+      <input class="objetivo-input" type="number" min="0" max="10" step="0.1" value="${s.objetivo ?? ''}" onchange="ponerObjetivo('${s.id}', this.value)">
+      ${badge}
+      <button class="icon" onclick="borrarAsignatura('${s.id}')" aria-label="Eliminar asignatura">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ---------- render: Notas y Trimestres ----------
+function renderNotas(){
+  const select = document.getElementById('nSelectAsignatura');
+  const calificables = data.asignaturas.filter(esCalificable);
+  if(!calificables.find(s => s.id === notasAsigId)) notasAsigId = calificables.length ? calificables[0].id : null;
+  select.innerHTML = calificables.map(s => `<option value="${s.id}" ${s.id===notasAsigId?'selected':''}>${escapeHtml(s.nombre)}</option>`).join('');
+
+  const panelMedia = document.getElementById('mediaAnualPanel');
+  const necesariaBox = document.getElementById('necesariaBox');
+  if(!notasAsigId){
+    document.getElementById('triContenido').innerHTML = `<div class="empty">Añade primero una asignatura calificable.</div>`;
+    panelMedia.innerHTML = `<div class="empty">Sin asignaturas calificables todavía.</div>`;
+    necesariaBox.innerHTML = '';
+    necesariaBox.className = 'necesaria-box';
+    return;
+  }
+  const s = data.asignaturas.find(a => a.id === notasAsigId);
+  document.getElementById('nSelectEsquema').value = s.esquema;
+  document.getElementById('esquemaCustomBox').style.display = s.esquema === 'custom' ? 'flex' : 'none';
+  const [c1,c2,c3] = s.esquemaCustom;
+  document.getElementById('cP1').value = c1;
+  document.getElementById('cP2').value = c2;
+  document.getElementById('cP3').value = c3;
+
+  document.querySelectorAll('nav.subtabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tri === notasTri ? 'true' : 'false'));
+
+  const {evs, pesoConfigurado, pesoEvaluado, weightedSum, media} = calcularTrimestre(s, notasTri);
+  const filas = evs.length ? evs.map(ev => `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(ev.nombre)}</div>
+        <div class="detalle">${ev.porcentaje}% del trimestre</div>
+      </div>
+      <input class="nota" type="number" min="0" max="10" step="0.1" placeholder="nota" value="${ev.nota ?? ''}" onchange="ponerNotaTri('${s.id}','${notasTri}','${ev.id}', this.value)">
+      <button class="icon" onclick="borrarEvaluacionTri('${s.id}','${notasTri}','${ev.id}')" aria-label="Eliminar">✕</button>
+    </div>`).join('') : `<div class="empty">Sin tareas/exámenes configurados en este trimestre.</div>`;
+
+  document.getElementById('triContenido').innerHTML = `
+    ${filas}
+    <div class="asig-total ${pesoConfigurado > 100 ? 'over' : ''}">${pesoConfigurado}% configurado · ${pesoEvaluado}% ya evaluado${pesoConfigurado > 100 ? ' · revisa los porcentajes, superan el 100%' : ''}</div>
+    <form class="eval-form" data-asig-id="${s.id}" data-tri="${notasTri}">
+      <input class="ev-concepto" type="text" placeholder="Tarea, examen, presentación…" required>
+      <input class="ev-porcentaje" type="number" min="0" max="100" step="1" placeholder="%" required>
+      <button type="submit">Añadir</button>
+    </form>`;
+
+  // caja de nota necesaria
+  const pesoRestante = 100 - pesoEvaluado;
+  necesariaBox.className = 'necesaria-box';
+  if(pesoEvaluado === 0){
+    necesariaBox.innerHTML = `Aún no hay notas registradas en este trimestre.`;
+  } else if(s.objetivo === null || s.objetivo === undefined){
+    necesariaBox.innerHTML = `Media parcial del trimestre: <strong>${media.toFixed(1)}</strong> (sobre ${pesoEvaluado}% evaluado). Fija una nota objetivo en Asignaturas para ver qué te hace falta.`;
+  } else if(pesoRestante <= 0){
+    const lograda = media >= s.objetivo;
+    necesariaBox.classList.add(lograda ? 'olive' : 'rust');
+    necesariaBox.innerHTML = `Trimestre cerrado (100% evaluado). Media final: <strong>${media.toFixed(1)}</strong> — ${lograda ? 'objetivo alcanzado.' : 'por debajo del objetivo de ' + s.objetivo + '.'}`;
+  } else {
+    const necesaria = (s.objetivo - weightedSum) / (pesoRestante/100);
+    if(necesaria > 10){
+      necesariaBox.classList.add('rust');
+      necesariaBox.innerHTML = `Con lo evaluado hasta ahora (media ${media.toFixed(1)} sobre ${pesoEvaluado}%), el objetivo de ${s.objetivo} ya no es alcanzable en el ${pesoRestante}% restante de este trimestre.`;
+    } else if(necesaria <= 0){
+      necesariaBox.classList.add('olive');
+      necesariaBox.innerHTML = `Objetivo de ${s.objetivo} ya asegurado en este trimestre con lo evaluado hasta ahora (media ${media.toFixed(1)}).`;
+    } else {
+      necesariaBox.innerHTML = `Necesitas una media de <strong>${necesaria.toFixed(1)}</strong> en el ${pesoRestante}% que queda de este trimestre para llegar al objetivo de ${s.objetivo}.`;
+    }
+  }
+
+  // media anual estimada
+  const pesos = esquemaPesos(s);
+  const filasAnual = ['1','2','3'].map((tri,i) => {
+    const t = calcularTrimestre(s, tri);
+    return `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${i+1}º Trimestre</div>
+        <div class="detalle">peso ${pesos[i]}% del curso</div>
+      </div>
+      <span class="badge pine">${t.media !== null ? t.media.toFixed(1) : 'sin datos'}</span>
+    </div>`;
+  }).join('');
+  const anual = estimacionAnual(s);
+  const anualTxt = anual !== null
+    ? `<div class="asig-total">Media anual estimada: <strong style="font-family:'Source Serif 4',serif; color:${s.objetivo && anual < s.objetivo ? 'var(--rust)' : 'var(--pine-dark)'};">${anual.toFixed(1)}</strong>${s.objetivo ? ' (objetivo '+s.objetivo+')' : ''}</div>`
+    : `<div class="empty">Aún no hay notas registradas en ningún trimestre.</div>`;
+  panelMedia.innerHTML = filasAnual + anualTxt;
+}
+
+// ---------- render: Tareas ----------
+function renderTareas(){
+  const el = document.getElementById('listaTareas');
+  if(!data.tareas.length){
+    el.innerHTML = `<div class="empty">Aún no has añadido ninguna tarea.</div>`;
+    return;
+  }
+  const ordenadas = [...data.tareas].sort((a,b)=>{
+    if(a.hecha !== b.hecha) return a.hecha ? 1 : -1;
+    return a.fecha.localeCompare(b.fecha);
+  });
+  el.innerHTML = ordenadas.map(t => {
+    const atrasada = !t.hecha && t.fecha < hoyISO();
+    return `
+    <div class="fila ${t.hecha ? 'done' : ''}">
+      <input type="checkbox" ${t.hecha ? 'checked' : ''} onchange="toggleTarea('${t.id}')" aria-label="Marcar como hecha">
+      <div class="info">
+        <div class="titulo">${escapeHtml(t.titulo)}</div>
+        <div class="detalle">${escapeHtml(t.asignatura)} · ${fmtFecha(t.fecha)}</div>
+      </div>
+      ${!t.hecha ? `<span class="badge ${t.prioridad==='Alta'?'rust':t.prioridad==='Baja'?'olive':'pine'}">${t.prioridad||'Media'}</span>` : ''}
+      ${!t.hecha && atrasada ? '<span class="badge rust">atrasada</span>' : ''}
+      <button class="icon" onclick="borrarTarea('${t.id}')" aria-label="Eliminar tarea">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ---------- render: Exámenes ----------
+function renderExamenes(){
+  const el = document.getElementById('listaExamenes');
+  if(!data.examenes.length){
+    el.innerHTML = `<div class="empty">Aún no has añadido ningún examen.</div>`;
+    return;
+  }
+  const ordenados = [...data.examenes].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  el.innerHTML = ordenados.map(e => {
+    const pasado = e.fecha < hoyISO();
+    return `
+    <div class="fila">
+      <div class="info">
+        <div class="titulo">${escapeHtml(e.asignatura)}</div>
+        <div class="detalle">${e.tema ? escapeHtml(e.tema)+' · ' : ''}${e.peso ? 'peso '+e.peso+'% · ' : ''}${fmtFecha(e.fecha)}</div>
+      </div>
+      ${pasado
+        ? `<input class="nota" type="number" min="0" max="10" step="0.1" placeholder="nota" value="${e.nota ?? ''}" onchange="ponerNota('${e.id}', this.value)">`
+        : `<span class="badge pine">en ${diasHasta(e.fecha)} días</span>`}
+      <button class="icon" onclick="borrarExamen('${e.id}')" aria-label="Eliminar examen">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderCabecera();
+  renderHoy();
+  renderHorario();
+  renderAsignaturas();
+  renderNotas();
+  renderTareas();
+  renderExamenes();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- acciones ----------
+window.borrarHorario = function(id){
+  data.horario = data.horario.filter(c => c.id !== id);
+  saveData(); renderAll();
+};
+window.borrarAsignatura = function(id){
+  data.asignaturas = data.asignaturas.filter(s => s.id !== id);
+  saveData(); renderAll();
+};
+window.ponerObjetivo = function(id, valor){
+  const s = data.asignaturas.find(a => a.id === id);
+  if(s) s.objetivo = valor === '' ? null : parseFloat(valor);
+  saveData(); renderAll();
+};
+window.ponerNotaTri = function(asigId, tri, evId, valor){
+  const s = data.asignaturas.find(a => a.id === asigId);
+  if(!s) return;
+  const ev = s.trimestres[tri].find(e => e.id === evId);
+  if(ev) ev.nota = valor === '' ? null : parseFloat(valor);
+  saveData(); renderAll();
+};
+window.borrarEvaluacionTri = function(asigId, tri, evId){
+  const s = data.asignaturas.find(a => a.id === asigId);
+  if(!s) return;
+  s.trimestres[tri] = s.trimestres[tri].filter(e => e.id !== evId);
+  saveData(); renderAll();
+};
+window.toggleTarea = function(id){
+  const t = data.tareas.find(t => t.id === id);
+  if(t) t.hecha = !t.hecha;
+  saveData(); renderAll();
+};
+window.borrarTarea = function(id){
+  data.tareas = data.tareas.filter(t => t.id !== id);
+  saveData(); renderAll();
+};
+window.ponerNota = function(id, valor){
+  const e = data.examenes.find(e => e.id === id);
+  if(e) e.nota = valor === '' ? null : parseFloat(valor);
+  saveData(); renderAll();
+};
+window.borrarExamen = function(id){
+  data.examenes = data.examenes.filter(e => e.id !== id);
+  saveData(); renderAll();
+};
+
+// ---------- tabs ----------
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected','false'));
+    document.querySelectorAll('section.panel').forEach(p => p.classList.remove('active'));
+    btn.setAttribute('aria-selected','true');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.querySelectorAll('nav.subtabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    notasTri = btn.dataset.tri;
+    renderNotas();
+  });
+});
+
+document.getElementById('nSelectAsignatura').addEventListener('change', e => {
+  notasAsigId = e.target.value;
+  notasTri = '1';
+  renderNotas();
+});
+
+document.getElementById('nSelectEsquema').addEventListener('change', e => {
+  const s = data.asignaturas.find(a => a.id === notasAsigId);
+  if(s){ s.esquema = e.target.value; saveData(); }
+  renderNotas();
+});
+
+['cP1','cP2','cP3'].forEach((id, idx) => {
+  document.getElementById(id).addEventListener('change', e => {
+    const s = data.asignaturas.find(a => a.id === notasAsigId);
+    if(s){ s.esquemaCustom[idx] = parseFloat(e.target.value) || 0; saveData(); }
+    renderNotas();
+  });
+});
+
+document.getElementById('triContenido').addEventListener('submit', e => {
+  const form = e.target.closest('form.eval-form');
+  if(!form) return;
+  e.preventDefault();
+  const s = data.asignaturas.find(a => a.id === form.dataset.asigId);
+  if(!s) return;
+  const nombre = form.querySelector('.ev-concepto').value.trim();
+  const porcentaje = parseFloat(form.querySelector('.ev-porcentaje').value);
+  if(!nombre || isNaN(porcentaje)) return;
+  s.trimestres[form.dataset.tri].push({id: uid(), nombre, porcentaje, nota: null});
+  saveData(); renderNotas();
+});
+
+// ---------- forms ----------
+document.getElementById('formHorario').addEventListener('submit', e => {
+  e.preventDefault();
+  data.horario.push({
+    id: uid(),
+    dia: document.getElementById('hDia').value,
+    hora: document.getElementById('hHora').value,
+    horaFin: document.getElementById('hHoraFin').value,
+    asignatura: document.getElementById('hAsignatura').value.trim(),
+    aula: document.getElementById('hAula').value.trim()
+  });
+  e.target.reset();
+  saveData(); renderAll();
+});
+
+document.getElementById('formAsignaturas').addEventListener('submit', e => {
+  e.preventDefault();
+  const objetivoVal = document.getElementById('aObjetivo').value;
+  data.asignaturas.push({
+    id: uid(),
+    nombre: document.getElementById('aNombre').value.trim(),
+    objetivo: objetivoVal === '' ? null : parseFloat(objetivoVal),
+    horas: document.getElementById('aHoras').value === '' ? null : parseFloat(document.getElementById('aHoras').value),
+    trimestres: {1:[], 2:[], 3:[]},
+    esquema: '20-30-50',
+    esquemaCustom: [20,30,50]
+  });
+  e.target.reset();
+  saveData(); renderAll();
+});
+
+document.getElementById('formTareas').addEventListener('submit', e => {
+  e.preventDefault();
+  data.tareas.push({
+    id: uid(),
+    asignatura: document.getElementById('tAsignatura').value.trim(),
+    fecha: document.getElementById('tFecha').value,
+    titulo: document.getElementById('tTitulo').value.trim(),
+    prioridad: document.getElementById('tPrioridad').value,
+    hecha: false
+  });
+  e.target.reset();
+  saveData(); renderAll();
+});
+
+document.getElementById('formExamenes').addEventListener('submit', e => {
+  e.preventDefault();
+  data.examenes.push({
+    id: uid(),
+    asignatura: document.getElementById('eAsignatura').value.trim(),
+    fecha: document.getElementById('eFecha').value,
+    tema: document.getElementById('eTema').value.trim(),
+    peso: document.getElementById('ePeso').value === '' ? null : parseFloat(document.getElementById('ePeso').value),
+    nota: null
+  });
+  e.target.reset();
+  saveData(); renderAll();
+});
+
+loadData();
+</script>
+</body>
+</html>
